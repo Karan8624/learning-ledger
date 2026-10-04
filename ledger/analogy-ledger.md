@@ -36,3 +36,8 @@
 ### gradient descent (Stage 3)
 - Related: training
 - A1: walking downhill in fog: you can't see the bottom, but you can feel which way the ground slopes and step that way. Status: untested.
+
+### mean pooling: sentence vector = average of word vectors (Stage 3)
+- Related: embedding, cosine similarity
+- A1: party's average build (extends the RPG stat sheet). Status: landed. Maps: word = party member, word vector = member's stat sheet, sentence vector = party average; a tank + mage averages to a build that looks like neither. Breaks: words adjust each other's stats (context) before averaging; party members don't.
+- Evidence: learner predicted the mixed synopsis would be diluted. Test: query "revenge story" scored mixed synopsis 0.42, pure-revenge 0.52, pure-romance 0.13.
