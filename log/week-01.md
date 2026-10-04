@@ -11,3 +11,8 @@
 - Concept: a synopsis vector is the average of its word vectors, so multi-theme synopses get diluted.
 - Analogy: party's average build (tank + mage looks like neither). Landed.
 - Experiment: "revenge story" vs mixed synopsis 0.42, pure revenge 0.52, pure romance 0.13. A long, rich synopsis can lose to a short single-theme one. Fix later: chunking (Stage 6).
+
+## 5 Oct: recall test, Stages 1–3
+- Explained all three stages from memory.
+- Pattern: got the "why" right every time (rarity, synonyms, same scoring), missed the "how" (where TF is counted, TF × IDF summed, cosine formula, learned + pooled vectors).
+- Next: redo all three using the four-question grid (Unit, Numbers, Score, Breaks), then the Stage 3 checkpoint.

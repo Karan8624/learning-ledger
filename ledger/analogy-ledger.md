@@ -41,3 +41,8 @@
 - Related: embedding, cosine similarity
 - A1: party's average build (extends the RPG stat sheet). Status: landed. Maps: word = party member, word vector = member's stat sheet, sentence vector = party average; a tank + mage averages to a build that looks like neither. Breaks: words adjust each other's stats (context) before averaging; party members don't.
 - Evidence: learner predicted the mixed synopsis would be diluted. Test: query "revenge story" scored mixed synopsis 0.42, pure-revenge 0.52, pure-romance 0.13.
+
+### Stages 1–3 as one progression (review)
+- Related: TF-IDF, cosine similarity, embedding
+- A1: four-question grid: for each stage answer Unit, Numbers, Score, Breaks; the Numbers row is what changes, each Breaks box is fixed by the next stage. Status: untested.
+- Misconceptions seen in recall: Stage 2 described as synopsis-level (it was word-level); "Stage 2 didn't relate two words" (cosine(cat, dog) did exactly that); Stage 3 as "just more efficient" (it's learned meaning + sentence vectors; efficiency is a side effect).
