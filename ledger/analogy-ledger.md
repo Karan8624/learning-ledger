@@ -64,3 +64,12 @@
 ### embeddings vs TF-IDF in practice (Stage 3 checkpoint)
 - Related: TF-IDF, embedding, mean pooling, cosine similarity
 - A1: own experiment, not an analogy: 6 queries for The Greatest Estate Developer over 50 AniList synopses. Embeddings won on reworded queries ("engineer", "construction worker"); TF-IDF won on exact words and names ("student wakes up inside a fantasy novel", "lloyd"). Status: landed. Learner predicted the no-stemming failure and thought up the "lloyd" test himself.
+
+### ranking search results (Stages 1–3)
+- Related: cosine similarity, TF-IDF, embedding, evaluation
+- A1: relative grading (learner-proposed, 7 Oct). Status: landed. Maps: raw marks = each synopsis's cosine score (fixed for a query); grade = rank among the other synopses; someone else scoring higher pushes you down (TGED fell to #2 under "construction worker"). Breaks: relative grading always hands out an A even if the whole class failed, and search likewise shows a top 5 even when every score is 0 (TF-IDF on "engineer"). Fix: an absolute threshold ("no good match found").
+
+### Stage 3 self-quiz (7 Oct, written in the notes doc)
+- 3 right (count-vector problems; cosine ignores length; dilution as a smaller matching share in long synopses), 3 half, 1 wrong.
+- Misconceptions seen: "384 comes from a library we import" (it is the chosen model's output size); 384 vs 22M only half separated (missing: 384 = per-sentence output); "the model decided they're related" (they fit the same blanks and got nudged together); "two texts score 1.0 if they share members with the query" (1.0 = identical vectors, e.g. differ only in capitalisation).
+- Pattern holds: intuition right, mechanism words vague. Push precise terms: trained, nudged, output, averaged.

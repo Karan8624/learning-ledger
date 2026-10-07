@@ -28,3 +28,8 @@
 - Results: embeddings won on reworded queries ("engineer": #1 vs all zeros); TF-IDF won on exact wording ("student wakes up inside a fantasy novel": #1 vs not in top 5) and names ("lloyd").
 - Conclusion: they fail in different places, so hybrid search next (Stage 6). One good result proves nothing, so evaluate over many queries (Stage 5).
 - Twice forgot to save the file before running (Ctrl+S). Turn on Auto Save.
+
+## 7 Oct: skill packaging + self-quiz
+- Packaged the skill as dist/learning-ledger-skill.zip with skill/INSTALL.md, ready for friends.
+- Came up with "relative grading" as an analogy for ranking. Landed, plus the threshold idea for when every score is bad.
+- Stage 3 self-quiz: 3 right, 3 half, 1 wrong. Mechanism wording is still the weak spot.
