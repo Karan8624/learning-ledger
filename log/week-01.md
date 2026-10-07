@@ -16,3 +16,15 @@
 - Explained all three stages from memory.
 - Pattern: got the "why" right every time (rarity, synonyms, same scoring), missed the "how" (where TF is counted, TF × IDF summed, cosine formula, learned + pooled vectors).
 - Next: redo all three using the four-question grid (Unit, Numbers, Score, Breaks), then the Stage 3 checkpoint.
+
+## 5–6 Oct: recall test, round 2
+- Stage 1: got TF, IDF, score and breaks; missing only the "where" (TF in the synopsis, IDF across all synopses, sum across query words).
+- Stage 2: kept putting "the query" in; fixed with a cat/dog/car counting table. Cosine slip: 1/(2*sqrt(2)) instead of 1/2.
+- Stage 3: "faster but less accurate" came back; asked "what are these numbers?". The hidden-questions explanation plus random, trained, frozen helped; final answer linked both stages: they learn from context, one by counting, one by guessing.
+
+## 7 Oct: Stage 3 checkpoint
+- Pulled 50 popular manhwa from the AniList GraphQL API into synopses.json. Learned JSON, API vs scraping, list comprehensions, enumerate, input() loops.
+- Built search.py (embeddings) and TF-IDF_seach.py, and ran the same queries for The Greatest Estate Developer.
+- Results: embeddings won on reworded queries ("engineer": #1 vs all zeros); TF-IDF won on exact wording ("student wakes up inside a fantasy novel": #1 vs not in top 5) and names ("lloyd").
+- Conclusion: they fail in different places, so hybrid search next (Stage 6). One good result proves nothing, so evaluate over many queries (Stage 5).
+- Twice forgot to save the file before running (Ctrl+S). Turn on Auto Save.

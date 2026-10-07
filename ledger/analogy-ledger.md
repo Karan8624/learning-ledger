@@ -46,3 +46,21 @@
 - Related: TF-IDF, cosine similarity, embedding
 - A1: four-question grid: for each stage answer Unit, Numbers, Score, Breaks; the Numbers row is what changes, each Breaks box is fixed by the next stage. Status: untested.
 - Misconceptions seen in recall: Stage 2 described as synopsis-level (it was word-level); "Stage 2 didn't relate two words" (cosine(cat, dog) did exactly that); Stage 3 as "just more efficient" (it's learned meaning + sentence vectors; efficiency is a side effect).
+
+### what the 384 numbers are (Stage 3, revisited)
+- Related: embedding, training, parameters vs embedding output
+- A1: each slot is a hidden question the model learned to ask about the text; the number is how strongly the text says "yes". Life cycle: random at the start, shaped by the guessing game, frozen after training, then computed the same way every time (encode is deterministic). Status: untested. Bridged from Stage 2: named neighbour slots with counts became unnamed learned slots with scores.
+- Misconceptions seen (6 Oct): "Stage 3 is faster but less accurate" (stated twice; corrected with his own 0.71 result: embeddings were more accurate at meaning); "numbers are whatever the model comes up with when it wants to" (they are deterministic); "Stage 3 calculates numbers with the Stage 2 counting method" (it learns by guessing, not counting; the shared idea is that both learn from context).
+- Misconception seen (6 Oct): put "the query" into Stage 2 (Stage 2 is word vs word; no query exists yet). Fixed with a 3-sentence cat/dog/car table; learner computed cosine(cat, dog) = 1/(2*sqrt(2)) instead of 1/2 (length slip: sqrt(2) x sqrt(2) = 2).
+
+### JSON files (tooling)
+- Related: Python lists and dicts
+- A1: JSON is just Python lists and dicts saved as text; [ ] = list, { } = dict. Status: landed. Learner loaded synopses.json and looped over titles correctly on the first try.
+
+### API vs web scraping (tooling)
+- Related: data collection
+- A1: restaurant: the API is the waiter taking a GraphQL order form to the kitchen; scraping is copying the menu off the window. Status: untested.
+
+### embeddings vs TF-IDF in practice (Stage 3 checkpoint)
+- Related: TF-IDF, embedding, mean pooling, cosine similarity
+- A1: own experiment, not an analogy: 6 queries for The Greatest Estate Developer over 50 AniList synopses. Embeddings won on reworded queries ("engineer", "construction worker"); TF-IDF won on exact words and names ("student wakes up inside a fantasy novel", "lloyd"). Status: landed. Learner predicted the no-stemming failure and thought up the "lloyd" test himself.
