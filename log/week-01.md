@@ -33,3 +33,9 @@
 - Packaged the skill as dist/learning-ledger-skill.zip with skill/INSTALL.md, ready for friends.
 - Came up with "relative grading" as an analogy for ranking. Landed, plus the threshold idea for when every score is bad.
 - Stage 3 self-quiz: 3 right, 3 half, 1 wrong. Mechanism wording is still the weak spot.
+
+## 7–8 Oct: Stage 4, transformers and attention
+- Concepts: contextual embeddings, query and key, softmax, values plus residual, 6 layers, then mean pooling.
+- Experiment: bank_test.py. "bank" vectors pulled from inside the model: river vs lake 0.893, river vs money 0.800. Context changes the word's vector.
+- Overload: query, key, value and softmax arrived together and it got confusing. Restarted with one idea per message and a classroom analogy, and it landed.
+- Breakthrough: found my own misconception: I thought "bank" from a synopsis was reused for the query. Every encode starts fresh, and the query and synopses each go through the same pipeline separately.

@@ -2,7 +2,9 @@
 
 ## Learner profile
 - Familiar worlds: RPG games, manhwa/anime
-- What tends to work: concrete tables, visuals when words don't land, writing code right after a concept, pen and paper for arithmetic
+- What tends to work: concrete tables, visuals when words don't land, writing code right after a concept, pen and paper for arithmetic, one idea per message for dense mechanism topics, an overview map before zooming in
+- What doesn't: several new terms in one message (Stage 4 query/key/value/softmax at once caused overload)
+- Pace and patterns: often skips the second half of two-part questions (usually the mechanism part); often studies late at night; asks sharp side questions mid-explanation
 
 ## Concepts
 
@@ -73,3 +75,25 @@
 - 3 right (count-vector problems; cosine ignores length; dilution as a smaller matching share in long synopses), 3 half, 1 wrong.
 - Misconceptions seen: "384 comes from a library we import" (it is the chosen model's output size); 384 vs 22M only half separated (missing: 384 = per-sentence output); "the model decided they're related" (they fit the same blanks and got nudged together); "two texts score 1.0 if they share members with the query" (1.0 = identical vectors, e.g. differ only in capitalisation).
 - Pattern holds: intuition right, mechanism words vague. Push precise terms: trained, nudged, output, averaged.
+
+### contextual embeddings: same word, different meaning (Stage 4)
+- Related: embedding, attention
+- A1: "bank" in "river bank" vs "deposit money at the bank". Status: landed. Learner named river/water and money/deposit as the deciding words.
+- Evidence: bank_test.py, token embeddings from the same model: river-bank vs lake-bank 0.893, river-bank vs money-bank 0.800. Shared base = the word's own starting vector (residual); the gap = context.
+
+### attention: how a word decides whom to listen to (Stage 4)
+- Related: contextual embeddings, dot product, softmax, mean pooling
+- A1: class group project. Query = your question, key = each classmate's badge, softmax = splitting 100 minutes of listening, value = the notes they give you, residual = adding the notes to what you already knew. Status: landed after slowing down to one idea per message.
+- A2: LFG (looking-for-group) board. Status: untested (superseded by the classroom).
+- A3: memory card game, flipping cards to find a match (learner-proposed). Status: partly landed. Correction: every card is flipped at once and gives a graded score, not a yes/no.
+- A4: 2D plot with invented "nature" and "finance" axes: start bank [1,1] pulled to [1.1,4.4] (money) or [4.3,1] (river). Status: untested.
+- Misconceptions seen (7-8 Oct): "loop over tokens and encode each alone" (loses context; attention needs the whole text at once); "the attention score is cosine" (it's a dot product, so length counts too); "keys change during attention" (the word's own vector changes; keys are remade only between layers); "softmax is the final step" (softmax is inside every round; mean pooling runs once at the end); "words are compared with the synopses inside encode" (words only talk to words in the same text); confusion between search query and attention query (same name, different things).
+- Resolved by the learner (8 Oct, in his words): he thought "bank" from a synopsis was reused for the query "without being taken anew". Every model.encode call starts fresh; nothing carries over between texts except the fixed learned rules.
+
+### softmax (Stage 4)
+- Related: attention
+- A1: a 100-minute attention budget split by match score, with extra focus on the top scorers. Status: landed. Learner linked it to dilution: giving "the" a fair share would water the meaning down.
+
+### the full encode pipeline (Stages 1-4)
+- Related: tokenizing, embedding, attention, mean pooling, cosine similarity
+- A1: tokenize → starting vectors → classroom discussion x6 (layers) → mean pooling → one 384-number vector; the query and every synopsis go through the same pipeline separately, then cosine compares the results. Status: landed. Learner's summary: "use the model to make single vectors out of both the query and the synopses, then use cosine to score."
