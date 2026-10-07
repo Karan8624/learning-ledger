@@ -28,7 +28,7 @@ Keep a **ledger** of every concept and every analogy used to explain it, with wh
 - **Your own way:** uses your own worlds (games, sports, cooking) and the formats that work for you (visuals, tables, code).
 
 ## How to use the skill
-Add `skill/SKILL.md` as a custom skill in Claude (Claude.ai settings, or `~/.claude/skills/learning-ledger/SKILL.md` for Claude Code). Then learn as usual. The ledger is kept in Claude's memory, or in a local `analogy-ledger.md` file.
+See [skill/INSTALL.md](skill/INSTALL.md). In short: enable code execution, then upload [`dist/learning-ledger-skill.zip`](dist/learning-ledger-skill.zip) in Claude under Customize → Skills. The ledger is kept in Claude's memory, or in a local `analogy-ledger.md` file.
 
 ## Results
 _Filled in at the end of the month: concepts covered, analogies tried, landed vs failed, and what I noticed._
