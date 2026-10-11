@@ -39,3 +39,7 @@
 - Experiment: bank_test.py. "bank" vectors pulled from inside the model: river vs lake 0.893, river vs money 0.800. Context changes the word's vector.
 - Overload: query, key, value and softmax arrived together and it got confusing. Restarted with one idea per message and a classroom analogy, and it landed.
 - Breakthrough: found my own misconception: I thought "bank" from a synopsis was reused for the query. Every encode starts fresh, and the query and synopses each go through the same pipeline separately.
+
+## 8 Oct: Stage 4 self-quiz
+- 3 right (L6/pooling, why 0.80, mostly the bank problem), 2 half (softmax share, why texts do not affect each other), 1 swapped (query vs key), 1 blank (residual).
+- Residual clicked afterwards: my own Q6 answer ("we can't ignore the word bank itself") was the reason. Without it, bank just copies its loudest neighbour.
