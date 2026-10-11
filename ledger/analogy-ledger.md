@@ -98,3 +98,17 @@
 ### the full encode pipeline (Stages 1-4)
 - Related: tokenizing, embedding, attention, mean pooling, cosine similarity
 - A1: tokenize → starting vectors → classroom discussion x6 (layers) → mean pooling → one 384-number vector; the query and every synopsis go through the same pipeline separately, then cosine compares the results. Status: landed. Learner's summary: "use the model to make single vectors out of both the query and the synopses, then use cosine to score."
+
+### evaluation: test set, rank, Hit@k (Stage 5)
+- Related: ranking, embeddings vs TF-IDF
+- A1: final exam with an answer key. Test set = exam questions plus answer key; eval.py = sitting the exam; nothing in the model changes. Status: landed (used it to separate evaluation from training and cross-validation).
+- A2: "a friend names a few guesses" for Hit@k. Status: untested.
+- A3: k = how many suggestions the chatbot shows the user; a line drawn under position k. Status: partly landed. Learner first read k as "the position where the right answer landed" (that is rank).
+- Evidence (12 Oct): 5 learner-written queries, ranks 5, 1, 1, 10, 35. Hit@1 = 2/5 = 40%, Hit@5 = 3/5 = 60%.
+- Misconceptions seen: "evaluation is cross-validation / a form of training" (no weights change; cross-validation belongs to training); "Hit@k is the k-th term that was right" (confuses k, a chosen cutoff, with rank); arithmetic slip 2/5 = 20% (pen and paper again).
+
+### side questions (11 Oct)
+- "Stage 2 is similar to bagging": name clash. Bag of words (Stage 1, one text as counts) vs bagging (bootstrap aggregating, many models vote, e.g. random forest).
+- "The Stage 3 model uses my Stage 2 vectors": no. Same principle (words in similar company get similar vectors), but the model's starting vectors were learned by fill-in-the-blank before download; encode just looks them up.
+- Badges (keys) are made per layer by a learned badge-maker, nudged by gradient descent whenever listening to a word helped fill a blank; the link between words emerges, it is never counted.
+

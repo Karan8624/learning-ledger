@@ -43,3 +43,9 @@
 ## 8 Oct: Stage 4 self-quiz
 - 3 right (L6/pooling, why 0.80, mostly the bank problem), 2 half (softmax share, why texts do not affect each other), 1 swapped (query vs key), 1 blank (residual).
 - Residual clicked afterwards: my own Q6 answer ("we can't ignore the word bank itself") was the reason. Without it, bank just copies its loudest neighbour.
+
+## 11–12 Oct: side questions + Stage 5 start
+- Cleared up: bag of words vs bagging; the model's vectors are learned, not my Stage 2 counts; the 6 layers are one attention round repeated with different learned makers.
+- Built Stage5_eval/eval.py: my own 5-query test set, prints the rank of the right answer. Ranks 5, 1, 1, 10, 35.
+- Learned Hit@k: k is the cutoff (how many suggestions are shown), rank is where the answer landed. Hit@1 = 40%, Hit@5 = 60%.
+- Path bug: ".." is relative to where the terminal stands; fixed with Path(__file__).
