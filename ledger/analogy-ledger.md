@@ -135,3 +135,19 @@
 - New dev set: 106 queries, mean overlap 0.21, 22% with a deliberate false detail. Dev scores dropped from ~0.96 to ~0.74, close to the human test (~0.69). The realistic dev picked w=0.4, which raised honest test MRR 0.62 -> 0.69 (Hit@10 0.94). Lesson: a dev set must look like the real exam, or tuning on it misleads.
 - Real forum queries added to test (GIRL, Hellper, Golden-Haired Summoner): real users are much harder than self-written queries.
 
+### Stage 6 MCQ + re-teach (17 Oct)
+- First try 4/10 (5/10 after one misclick). Stage 6 had not settled. Re-taught one at a time:
+  - Softmax again (third time): picked 100% for [0,1] (plain division). Rule drilled: exp first, then divide; e^0 = 1 so a 0 score never gets 0%. Check [5,5] and [0,0] -> 50/50 each: correct.
+  - MAL copies: checks "same or almost the same text" before adding a source: correct.
+  - Hellper drop: weight also changed (0.3 -> 0.1), so two things changed at once; lesson: change one thing at a time (same weight, different data). Learner's first answer "compare the two models" needed precision.
+  - Real query overlap ~20% vs benchmarks ~55% (learner mixed them up). Learner over-concluded "don't use TF-IDF"; corrected: hybrid still beats embeddings alone.
+  - New dev set raised test MRR via a better weight (learner answered "because of the change in weights": right).
+- Pattern: learner rushes multi-step arithmetic and two-number comparisons; slows down and gets them right when asked one question at a time.
+
+### Threshold on the realistic dev set (17 Oct)
+- On realistic queries #1 is wrong 37/106 times; margin barely helps, so use top score only.
+- Framing that worked: "when the bot sounds confident, how often is it right?" plus the cost asymmetry (doubting a right answer is cheap, a confident wrong answer hurts trust).
+- Chosen on dev: top < 0.25 -> unsure (dev: 89% of wrong caught, confident answers right 91%). Test: 5/7 wrong caught, confident right 6/8 = 75%.
+- The 2 confident mistakes (Latna, Doom Breaker) are "missing" queries matching another synopsis strongly: a threshold cannot catch those; the learner's fallback idea (TF-IDF picks on "none of these") is the right tool.
+- Learner ran both thresholds on test; noted that choosing between them on test would be peeking.
+

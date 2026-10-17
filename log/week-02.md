@@ -18,3 +18,9 @@
 - Min-max normalised fusion tied the plain hybrid. Bottleneck is data, not maths.
 - Enriched synopses with MAL text: helped embeddings, hurt the hybrid because only some entries grew (relative grading / length bias) and the old dev set picked a bad weight.
 - Built a realistic dev set (106 queries) following research on how people write these posts. Dev now scores like the human test, and the weight it picks raised honest MRR to 0.69.
+
+## 17 Oct (cont.): Stage 6 quiz, threshold
+- Stage 6 MCQ: 5/10, re-taught all six misses one by one (softmax again, copies, one change at a time, overlap numbers, dev set purpose).
+- Threshold redone on the realistic dev set: top score < 0.25 means "not sure, is it one of these?". On test, confident answers are right 75% of the time; the confident mistakes are "missing" queries that the fallback should handle.
+- Side question: Git file snapshots are trees, but commit history is a DAG (merges have two parents).
+- Parked idea: restaurant inventory system (recipes as a graph, portions left, demand forecasting).
