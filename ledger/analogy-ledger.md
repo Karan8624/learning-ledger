@@ -112,3 +112,26 @@
 - "The Stage 3 model uses my Stage 2 vectors": no. Same principle (words in similar company get similar vectors), but the model's starting vectors were learned by fill-in-the-blank before download; encode just looks them up.
 - Badges (keys) are made per layer by a learned badge-maker, nudged by gradient descent whenever listening to a word helped fill a blank; the link between words emerges, it is never counted.
 
+### MRR, per-type breakdown, hybrid, dev/test, threshold (Stage 5, 12-14 Oct)
+- Related: Hit@k, TF-IDF, embeddings, IDF
+- MRR: "points by guess number" (1st = 1, 2nd = half, 5th = a fifth). Status: landed; learner computed 0.4658 by hand and wrote the MRR line of code himself.
+- Crowded genre = low IDF: "guy ends up inside a novel" describes many synopses, so "easy" queries ranked worse than "reworded". Learner's words: "a lot of novel transmigration slop". Status: landed.
+- Hybrid: learner proposed "average them?" himself. Learned that adding a constant never changes a ranking (shift), only multiplying/weights change balance (spread). He first suggested adding constants, then dividing by 50 (= weight 0.02, arbitrary).
+- Dev/test split: "a student who sees the exam paper before the exam" / reporting the best of 5 attempts at the same exam. Status: landed. Measured: tuning on test gave MRR 0.73, honest split gave 0.70.
+- Learner-proposed fallback: hybrid by default, TF-IDF picks if the user says none are right. Evaluated: would have rescued Latna (hybrid 24, TF-IDF 5).
+- Misconceptions seen: "threshold on a query's MRR" (MRR needs the answer key; live bot only has scores, so use top score + margin); "dictionary query: synopsis" (answer is the title); several code-structure slips (overwrote ranks, lines outside the loop, reused a function name for its result, pasted a second loop instead of extending the first).
+- Results: test set (14 human queries) hybrid w=0.3 Hit@5 0.93, MRR 0.70 vs emb 0.62, TF-IDF 0.64. Threshold on dev: top < 0.25 and margin < 0.04 catches all 3 wrong #1s.
+
+### Stage 1-5 MCQ checkpoint (16 Oct)
+- 14/15 first try. Only miss: softmax share for [1,2,4] (picked 57% = plain division 4/7; correct 84%). Same slip as the 8 Oct quiz (guessed ~60%), so a repeat weakness.
+- Re-taught: exp first, then divide; every +1 in score multiplies weight by ~2.7; [0,0,2] -> 79% (worked by hand); [3,3,3] -> 1/3 each. Linked to Stage 5: softmax and rankings only care about gaps between scores (adding a constant changes nothing). Status: landed.
+
+### Stage 6: fusion, data enrichment, realistic dev set (17 Oct)
+- Related: hybrid, dev/test split, relative grading, IDF
+- Min-max normalisation = "relative grading" applied to each method's scores per query (learner recognised it as min-max scaling from ML; used sklearn MinMaxScaler). Result: tied the plain hybrid (0.62 vs 0.62). Lesson: the dev-tuned weight had already compensated for scale; fusion was not the bottleneck.
+- Enriched synopses with MyAnimeList text: 19 of 45 matches were near-copies of the AniList blurb (sites copy the same official text), so only 27 got extra text. Embeddings improved (test Hit@5 0.59 -> 0.76), hybrid got worse.
+- Learner's diagnosis of why unchanged entries (Hellper, Summoner) dropped: "relative grading". Correct: half the class got extra study time, so the unchanged ones fell in rank. Lesson: enrich evenly or not at all (length bias; BM25 has a length correction for this).
+- Learner's idea: research how humans write "help me find" posts, then generate a realistic synthetic dev set. Evaluated yes, dev only. Research: real queries share ~19-25% of words with the target, describe scenes/objects/looks more than plot, hedge a lot, include wrong details.
+- New dev set: 106 queries, mean overlap 0.21, 22% with a deliberate false detail. Dev scores dropped from ~0.96 to ~0.74, close to the human test (~0.69). The realistic dev picked w=0.4, which raised honest test MRR 0.62 -> 0.69 (Hit@10 0.94). Lesson: a dev set must look like the real exam, or tuning on it misleads.
+- Real forum queries added to test (GIRL, Hellper, Golden-Haired Summoner): real users are much harder than self-written queries.
+

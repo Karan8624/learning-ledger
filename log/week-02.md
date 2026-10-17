@@ -11,3 +11,10 @@
 - Threshold: the bot can't know MRR live, so use top score and margin. Top < 0.25 and margin < 0.04 caught all wrong answers on dev.
 - Idea: fall back to TF-IDF picks when the user says none of the 5 are right.
 - Stage 5 done. Notes written.
+
+## 15-17 Oct: Stage 6 begins
+- Research: real "find this manhwa" posts are rare to find; only 3 Korean pairs with answers. Added them to the test set (now 17), plus their synopses. Honest test MRR fell 0.70 -> 0.62: real users are harder.
+- MCQ checkpoint on Stages 1-5: 14/15, missed softmax again; re-taught with worked examples, now solid.
+- Min-max normalised fusion tied the plain hybrid. Bottleneck is data, not maths.
+- Enriched synopses with MAL text: helped embeddings, hurt the hybrid because only some entries grew (relative grading / length bias) and the old dev set picked a bad weight.
+- Built a realistic dev set (106 queries) following research on how people write these posts. Dev now scores like the human test, and the weight it picks raised honest MRR to 0.69.
