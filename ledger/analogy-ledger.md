@@ -5,6 +5,7 @@
 - What tends to work: concrete tables, visuals when words don't land, writing code right after a concept, pen and paper for arithmetic, one idea per message for dense mechanism topics, an overview map before zooming in
 - What doesn't: several new terms in one message (Stage 4 query/key/value/softmax at once caused overload)
 - Pace and patterns: often skips the second half of two-part questions (usually the mechanism part); often studies late at night; asks sharp side questions mid-explanation
+- Notebook habits (Stage 7): edits often live only in the editor (unsaved), and cells run out of order; Restart -> Run All plus Ctrl+S is the fix that works
 
 ## Concepts
 
@@ -150,4 +151,38 @@
 - Chosen on dev: top < 0.25 -> unsure (dev: 89% of wrong caught, confident answers right 91%). Test: 5/7 wrong caught, confident right 6/8 = 75%.
 - The 2 confident mistakes (Latna, Doom Breaker) are "missing" queries matching another synopsis strongly: a threshold cannot catch those; the learner's fallback idea (TF-IDF picks on "none of these") is the right tool.
 - Learner ran both thresholds on test; noted that choosing between them on test would be peeking.
+
+### supervised learning and TF-IDF as features (Stage 7, 18 Oct - 3 Nov)
+- Related: TF-IDF, train/test split, logistic regression
+- Misconception seen: "TF-IDF scans each query and matches synopses" (that is Stage 2/5 search). Stage 7 has no query; TF-IDF only translates each synopsis into a row of word weights.
+- A1: search TF-IDF = the person checking answers; classification TF-IDF = the person turning each essay into a score sheet, and the classifier = the student who studies the score sheets. Status: landed.
+- A2: vocabulary = an attendance register with 10,864 names; fit_transform writes the register from train, transform only fills it in for test. Status: landed. Learner's words: "the test synopses need to be tested on the same attendance sheet."
+- One-hot vs multi-hot: learner linked genre columns to one-hot himself; refined to multi-hot ("tick all that apply"). Status: landed. Built all 18 is_ columns with his own loop (after fixing a for-else bug that appended only each row's last genre).
+
+### logistic regression, baseline, precision/recall, class weights (Stage 7)
+- Related: softmax, threshold
+- A1: rubric marking: every word adds or subtracts points; training learns how many points each word deserves; sigmoid = two-class softmax. Status: untested.
+- Baseline: always saying "Romance" scores 64.6%; the first model scored 84%.
+- A2: fishing net: recall = how many fish in the lake you caught, precision = how much of your net is fish, not boots. Status: untested.
+- Results (Action vs Romance, 328 test): plain model Action recall 0.58 (cautious, dumps doubt into Romance); class_weight="balanced" -> recall 0.83, accuracy 0.89. F1 introduced as the strict average that punishes imbalance.
+- Weights inspected: learner guessed love/friends/crush and sword/mage/fight; model's top words were love/duke/marriage and world/game/martial/hunter.
+
+### leakage: publisher credits (Stage 7)
+- Related: dev/test, shortcuts
+- Top words included tappytoon, translated, entertainment, from "(Source: ...)" credit lines in 2,363 of 2,789 synopses.
+- A1: "the answer key printed faintly on the back of the exam": a real score that measures the wrong thing, because users never type a publisher name. Status: landed. Learner first proposed "putting weights on them" (corrected: remove them from the input; training sets weights).
+- Result: removing credits with a regex gave 0.89 -> 0.90 and the words vanished. My prediction (a dip) was wrong: the credits were mostly noise.
+
+### embeddings vs TF-IDF vs hybrid for classification (Stage 7)
+- Related: frozen model, Stage 5 hybrid
+- A1: encoding the test set is not peeking: MiniLM is a printed dictionary (made before the exam, frozen); TF-IDF fit is a dictionary written from the exam paper. Status: partly landed. Learner's answer "it's like scaling, and we're not fitting on test" had the right conclusion.
+- Results: TF-IDF 0.90, embeddings 0.92 (384 numbers vs 10,766), hybrid 0.93 (about 3 synopses: a tie). Learner's prediction that embeddings would win was right; my guess for TF-IDF was wrong.
+
+### multi-label (Stage 7, in progress)
+- Related: one-vs-rest, threshold
+- A1: a panel of 8 specialist judges, each only answering "is it my genre?", never talking to each other. Status: landed.
+- Misconception seen: "One-vs-Rest is like k-fold or XGBoost". Corrected with a table: k-fold = evaluation splits; XGBoost = a team of trees answering the same question; One-vs-Rest = separate models answering different questions.
+- Genre choice: learner dropped Unknown, Ecchi, Erotica; missed scraping fragments (Love = merged Boys/Girls Love) and too-rare genres (Sports 21, Gourmet 16). Rule used: keep genres with >= ~100 examples (8 genres).
+- Results (embeddings, balanced, 558 test): Fantasy 0.78, Romance 0.73, Action 0.72 ... Slice of Life 0.24. Plot genres do well; tone genres (Comedy, Drama, Slice of Life) struggle because synopses describe what happens, not how it feels. High recall, low precision = trigger-happy detectors.
+- Learner's idea: "a percentile score to fix the trigger-happiness" -> per-genre thresholds chosen on a dev set (Stage 6 threshold again); top-k genres noted for later.
 
