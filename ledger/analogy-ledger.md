@@ -6,6 +6,7 @@
 - What doesn't: several new terms in one message (Stage 4 query/key/value/softmax at once caused overload)
 - Pace and patterns: often skips the second half of two-part questions (usually the mechanism part); often studies late at night; asks sharp side questions mid-explanation
 - Notebook habits (Stage 7): edits often live only in the editor (unsaved), and cells run out of order; Restart -> Run All plus Ctrl+S is the fix that works
+- Design instincts (Stage 8): proposes the architecture himself ("predict the first n probable and then sort through them" = retrieve-then-rerank; "first make the query more feasible" = query rewrite; "look at common keywords among the missed"). Strong at asking what to measure, weaker at the exact mechanics of a limit (assumed the API quota resets like a clock). New project ideas keep arriving mid-stage; the idea rule (rate on the 8-point checklist, then park) is what keeps the stage moving
 
 ## Concepts
 
@@ -186,3 +187,41 @@
 - Results (embeddings, balanced, 558 test): Fantasy 0.78, Romance 0.73, Action 0.72 ... Slice of Life 0.24. Plot genres do well; tone genres (Comedy, Drama, Slice of Life) struggle because synopses describe what happens, not how it feels. High recall, low precision = trigger-happy detectors.
 - Learner's idea: "a percentile score to fix the trigger-happiness" -> per-genre thresholds chosen on a dev set (Stage 6 threshold again); top-k genres noted for later.
 
+### retrieve-then-rerank and the ceiling (Stage 8, 4-8 Nov)
+- Related: Hit@k, hybrid, LLM reranking, query rewrite
+- Learner's own design (his words): "predict the first n probable and then sort through them after". That is retrieve-then-rerank, proposed by him before it had a name. Pipeline built: rewrite (gpt-oss-20b) -> hybrid shortlist of 50 (0.2 embeddings + 0.8 TF-IDF) -> rerank (gpt-oss-120b reads the ORIGINAL query plus 50 synopses, returns 5 numbers).
+- Key idea: the ceiling. The share of answers that reach the top 50 caps the whole system, because the reranker can only reorder what it is given. Hit@50 / Hit@100 measure the ceiling.
+- A1: librarian fetches 50 books, an expert then reads them and picks the best 5; the expert cannot choose a book that was never fetched. Status: untested (check next stage by asking him to explain why the rewrite step raised the ceiling).
+- Final result on the 30 real test queries: search alone Hit@1 0.20 / Hit@5 0.30 / Hit@50 0.47; search + LLM (no rewrite) 0.43 / 0.43; search + rewrite + LLM ceiling 0.57, Hit@1 0.43, Hit@5 0.57. Caveat: one query = 3.3 points, so small gaps are noise.
+- Honest-test note: the first test run (no rewrite) and the final (with rewrite) are two configurations; the rewrite was chosen on dev, then the test was run once with it.
+
+### BM25 (Stage 8, 5 Nov)
+- Related: TF-IDF, IDF, length normalisation
+- Misconception seen: "saturation is basically scaling". Corrected: saturation = diminishing returns (the 10th "dragon" adds less than the 2nd); length normalisation is the separate part that stops long synopses winning by size.
+- Result on dev: BM25 Hit@50 0.60 / Hit@100 0.63 vs TF-IDF 0.60 / 0.67. A better-motivated ranker did not raise the ceiling, so it was not adopted. Lesson: a "better" method has to move the number you care about.
+- The learner added BM25 to eval_split.py himself (tokenize, BM25Okapi, bm25_scores, report line) after fixing placement and indentation slips.
+
+### query rewrite / HyDE (Stage 8, 5-7 Nov)
+- Related: vocabulary mismatch, hybrid, ceiling
+- Idea: users describe a half-remembered plot in their own words; synopses use the site's words. Have an LLM write a short synopsis of what the user is describing, and search with that too (hypothetical document embeddings, HyDE).
+- Dev ceiling (Hit@50 / Hit@100): original 0.73 / 0.81; rewrite only 0.78 / 0.83; query + rewrite 0.84 / 0.87. Chosen: query + rewrite.
+- Risk seen: the rewrite invents details (a "CEO Kwon Jae-ho" nobody wrote). That is why the reranker reads the original query, never the rewrite.
+- Learner wrote rewrite_eval.py himself; lost the query inside the prompt once (restored).
+
+### position bias in LLM reranking (Stage 8)
+- Related: reranker, fair test
+- Hypothesis still open: the reranker may favour synopses shown early. Two cases kept the same rank (Stellar Swordmaster 2 -> 2, After Ten Millennia 3 -> 3). The --shuffle flag tests it; it needs the 120b quota on dev.
+
+### API quotas and engineering lessons (Stage 8, 6-7 Nov)
+- Groq free tier: gpt-oss-120b has 200,000 tokens per day, counted over a rolling 24 hours, and hidden reasoning tokens count. Learner asked twice whether it "refreshes every 24 hrs"; corrected: it is a sliding window, not a clock reset, and each model has its own quota. Fix used: 20b with low reasoning for rewrites, a separate cache file, resume from cache.
+- Failures handled: 429 daily limit (DailyLimit exception), two getaddrinfo network crashes (runs resumed from cache). Pending: retry on APIConnectionError.
+- Traps named: stale cache files (catalogue_emb.npy, results filenames, mixing 120b and 20b rewrites); change one thing at a time; tune on dev, run test once per configuration.
+- The 20b edit to MODEL in rerank.py would have changed two variables at once; reverted to 120b and explained.
+
+### reading the 13 misses (Stage 8, 8 Nov)
+- 13 of 30 test answers never reach the top 50. Missed queries are long and chatty (about 123 words vs 49 for the found ones), mostly real posts, 10 of 13 contain "remember"; the answers' synopses are not shorter.
+- Learner's idea: look at common keywords among the missed. It produced a real finding. Status: hypothesis only (filler words dilute the match). Four zero-token dev experiments proposed: domain stop words, sentence-level scoring, extractive rewrite, longer-query handling.
+
+### software design for shipping (Stage 8, 6 Nov)
+- Learner's ideas: load models once at startup; tell the user when the API credit has run out; a history.csv searched first; store query + title + whether the answer was in the top 5 and at what number.
+- Refinements: nothing is trained, so "penalties" means tuning pipeline knobs (prompt, k, weights, stop words) from the logged data; use SQLite instead of CSV; cache keyed on query similarity, not exact text; per-user rate limit; graceful degradation to search-only when the quota is gone; 18+ titles stay searchable with a label.
