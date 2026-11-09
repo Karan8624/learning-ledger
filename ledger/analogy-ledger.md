@@ -6,6 +6,7 @@
 - What doesn't: several new terms in one message (Stage 4 query/key/value/softmax at once caused overload)
 - Pace and patterns: often skips the second half of two-part questions (usually the mechanism part); often studies late at night; asks sharp side questions mid-explanation
 - Notebook habits (Stage 7): edits often live only in the editor (unsaved), and cells run out of order; Restart -> Run All plus Ctrl+S is the fix that works
+- Terminal habits (shipping, 9 Nov): commands run from the wrong folder (C:\Users\Karan instead of the repo) and in a Python that lacked the packages; an environment variable set in one window is gone in the next. What works: start every command block with cd, give one block at a time, and ask for the last 3 lines of an error, not the whole trace
 - Design instincts (Stage 8): proposes the architecture himself ("predict the first n probable and then sort through them" = retrieve-then-rerank; "first make the query more feasible" = query rewrite; "look at common keywords among the missed"). Strong at asking what to measure, weaker at the exact mechanics of a limit (assumed the API quota resets like a clock). New project ideas keep arriving mid-stage; the idea rule (rate on the 8-point checklist, then park) is what keeps the stage moving
 
 ## Concepts
@@ -225,3 +226,17 @@
 ### software design for shipping (Stage 8, 6 Nov)
 - Learner's ideas: load models once at startup; tell the user when the API credit has run out; a history.csv searched first; store query + title + whether the answer was in the top 5 and at what number.
 - Refinements: nothing is trained, so "penalties" means tuning pipeline knobs (prompt, k, weights, stop words) from the logged data; use SQLite instead of CSV; cache keyed on query similarity, not exact text; per-user rate limit; graceful degradation to search-only when the quota is gone; 18+ titles stay searchable with a label.
+
+### negative results: what to do when an idea fails (Stage 8, 8-9 Nov)
+- Related: ceiling, hypothesis vs result, dev/test discipline
+- The "13 misses are long and chatty" hypothesis led to three dev-only experiments. BM25: same Hit@50 (0.60). Asking the LLM to name titles from memory: gpt-oss-20b had the right title in 5% of queries (2 of 110 rescued, many invented titles); gpt-oss-120b on 30 queries 23% (1 rescued). Stripping filler words and meta sentences: Hit@50 0.84 -> 0.83, one query worse, none better.
+- Learner's question "so do we clean the queries of noise?" was the right one to test. Why it could not settle the matter: dev queries average only 48 words (45 after cleaning), so the chatty-post case lives in the test set, which must not be tuned on.
+- Decision: adopt none of them; write them into the README as "things I tried that did not help". A single missed query (an Omniscient Reader dev query found at #1 early, missed later) is one sample from a non-repeatable LLM step, not a reason to tune.
+- A1: none used yet. Candidate for next time: a doctor ruling out three diagnoses still learns something; ask him what each failed test told us about where the problem is (retrieval, not wording).
+
+### serving it: limits, proxies and a clean install (Stage 8, 9 Nov)
+- Related: rate limit, graceful degradation, reverse proxy / tunnel, requirements.txt
+- Measured, not guessed: the running server uses about 573 MB, so a 512 MB free host is out and a 1 GB host or his own laptop works. One reranked search costs about 6,000-7,400 tokens, so the free 120b quota covers about 27-34 searches a day.
+- The per-user limit counts the client address. Behind a tunnel every request arrives from 127.0.0.1 unless the server reads the real address, and a header like X-Forwarded-For can be typed by the visitor, so it can be faked. Cloudflare sets CF-Connecting-IP itself; the server now reads that one. Tested for real: 11 identical searches from the phone (repeats come from the cache, so no tokens) gave the "nap" screen, and the laptop still searched normally.
+- requirements.txt had drifted from the code (fastapi and uvicorn missing); a fresh install is the test that catches this. Two cache files holding dev query text were committed by mistake and removed with an amend and force-push.
+- A1: guest-list picture for the header (visitor writes their own name vs the guard writes it). Status: not used in the chat yet; check next time by asking him why the server trusts one header and not the other.

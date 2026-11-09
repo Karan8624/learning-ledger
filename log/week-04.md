@@ -17,3 +17,11 @@
 - Stage 8 notes doc written.
 - Side ideas rated and parked (Moodle companion 7/10, Bluffbot, others). Replied to the Chipzen invite: exams first, a later season.
 - Plan: exams 16-30 Nov; hard stop on the chatbot around 10 Nov; GitHub repo and the one-page app next, public launch after exams.
+
+## 8-9 Nov: negative results and the app
+- Three more dev-only ideas failed to raise the ceiling: BM25, LLM title recall (20b and 120b), filler stripping. None adopted; all written into the README.
+- Built the app: find(query) engine, FastAPI server with a 10-per-hour limit, SQLite feedback log, one-page frontend from the Claude Design. Pushed to GitHub (after removing two cache files that held dev query text).
+- Measured: about 573 MB of memory; 6,000-7,400 tokens per search, so about 27-34 smart searches a day on the free tier.
+- 9 Nov: added a short synopsis teaser to each card and a MyAnimeList/AniList credit to the footer; fixed the client address for Cloudflare; tested through a tunnel from the phone (rate limit works, laptop unaffected); fixed requirements.txt.
+- Plan: soft launch to a few friends, a LinkedIn post with the repo and a screen recording (live demo after exams), then stop; exams 16-30 Nov.
+
